@@ -61,7 +61,6 @@ class Transcripter:
                 while True:
                     try:
                         result_str = await self._ws.recv()
-                        self.ts_res = result_str
                         print(json.loads(result_str)['text'])
                     except websockets.exceptions.ConnectionClosedError as e:
                         print(e)
@@ -72,5 +71,5 @@ class Transcripter:
 
             send_result, receive_result = await asyncio.gather(send(), receive())
 
-ts = Transcripter()
-asyncio.run(ts.send_receive())
+# ts = Transcripter()
+# asyncio.run(ts.send_receive())
