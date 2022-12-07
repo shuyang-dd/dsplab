@@ -47,13 +47,15 @@ class View(Tk.Tk):
         self.file_btn.grid(row=0, column=1, sticky='W', padx=5)
 
         Tk.Label(self.io_frame, text = 'Status:').grid(row=0, column=2, sticky='E')
-        Tk.Label(
+        self.status_label = Tk.Label(
             self.io_frame,
             textvariable = self.status,
+            fg = 'red',
             width = 12,
             relief = Tk.SUNKEN,
             bd = 1
-        ).grid(row=0, column=3, padx = 10, sticky='E')
+        )
+        self.status_label.grid(row=0, column=3, padx = 10, sticky='E')
 
         # IO Frame: 2nd Line
         self.open_btn = Tk.Button(
@@ -305,6 +307,22 @@ class View(Tk.Tk):
             else:
                 frame.grid_remove()
 
+        self.echo_enable.set(False)
+        self.vibrato_enable.set(False)
+        self.am_enable.set(False)
+        self.pitchshift_enable.set(False)
+        self.chorus_enable.set(False)
+        if mode == 0:
+            self.echo_enable.set(True)
+        elif mode == 1:
+            self.vibrato_enable.set(True)
+        elif mode == 2:
+            self.pitchshift_enable.set(True)
+        elif mode == 3:
+            self.chorus_enable.set(True)
+        elif mode == 4:
+            self.am_enable.set(True)
+
     def on_input_change(self):
         mode = self.input_mode.get()
         if mode == 1:
@@ -317,14 +335,17 @@ class View(Tk.Tk):
         if filepath:
             self.file_path.set(filepath)
             self.status.set('File Opened')
+            self.status_label.config(fg="blue")
 
     def start_play(self):
         mode = self.input_mode.get()
         if mode == 1:
             self.status.set('Recording')
+            self.status_label.config(fg="green")
         elif mode == 2:
             if self.file_path.get():
                 self.status.set('Playing')
+                self.status_label.config(fg="green")
             else:
                 messagebox.showerror('Error', 'Please open a wave file')
                 return
@@ -338,8 +359,10 @@ class View(Tk.Tk):
     def stop_play(self):
         if self.save_file.get():
             self.status.set('File Saved')
+            self.status_label.config(fg="orange")
         else:
             self.status.set('Stopped')
+            self.status_label.config(fg="red")
         self.mic_btn.configure(state='normal')
         self.file_btn.configure(state='normal')
         self.open_btn.configure(state='normal')
