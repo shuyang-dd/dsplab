@@ -61,7 +61,8 @@ class Transcripter:
                 while True:
                     try:
                         result_str = await self._ws.recv()
-                        print(json.loads(result_str)['text'])
+                        result_str=json.loads(result_str)['text']
+                        print(result_str)
                     except websockets.exceptions.ConnectionClosedError as e:
                         print(e)
                         assert e.code == 4008

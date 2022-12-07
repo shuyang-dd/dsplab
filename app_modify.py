@@ -10,8 +10,10 @@ from effects.chorus import *
 
 from view import View
 import wave
-import pyaudio, struct
+import pyaudio
+import struct
 import numpy as np
+import threading
 
 from Transcripter import Transcripter
 import asyncio
@@ -22,6 +24,7 @@ RATE = 16000     # rate (samples/second)
 BLOCKLEN = 1024
 WIDTH = 2
 
+
 class App:
     def __init__(self):
         self.view = View(self)
@@ -29,12 +32,12 @@ class App:
 
         self.mode = 0
         self.mode_changed = False
-        
+
         self.block_len = BLOCKLEN
         self.audio = pyaudio.PyAudio()
 
         self.set_rate(RATE)
-    
+
     def set_rate(self, rate):
         self.rate = rate
         self.echo_effect = EchoEffect(rate, self.block_len)
@@ -47,26 +50,26 @@ class App:
         if self.mode == 0:
             self.stop_audio()
             return
-        
+
         if self.mode == 1:
             self.stream = self.audio.open(
-                format = pyaudio.paInt16,  
-                channels = CHANNELS, 
-                rate = self.rate,
-                input = True, 
-                output = True)
-        
+                format=pyaudio.paInt16,
+                channels=CHANNELS,
+                rate=self.rate,
+                input=True,
+                output=True)
+
         if self.mode == 2:
             self.wf = wave.open(self.view.file_path.get(), 'rb')
 
             self.set_rate(self.wf.getframerate())
 
             self.stream = self.audio.open(
-                format = pyaudio.paInt16,  
-                channels = CHANNELS, 
-                rate = self.rate,
-                input = False, 
-                output = True)
+                format=pyaudio.paInt16,
+                channels=CHANNELS,
+                rate=self.rate,
+                input=False,
+                output=True)
 
         save_file = self.view.save_file.get()
         save_name = self.view.save_name.get()
@@ -78,6 +81,8 @@ class App:
 
     # mode: 0 -- Stopped, 1 -- Microph, 2 -- Wave File
     def start(self):
+
+        self.show_ts()
         s_count = 0
         w_count = 0
         while self.view.is_running():
@@ -88,15 +93,17 @@ class App:
                 self.view.update()
                 continue
             elif self.mode == 1:
-                input_bytes = self.stream.read(self.block_len, exception_on_overflow = False)
+                input_bytes = self.stream.read(
+                    self.block_len, exception_on_overflow=False)
             elif self.mode == 2:
                 input_bytes = self.wf.readframes(self.block_len)
 
             if len(input_bytes) < self.block_len * WIDTH:
                 input_bytes = b"\x00" * self.block_len * WIDTH
 
-            input_tuple = struct.unpack('h' * self.block_len, input_bytes)  # Convert
-            
+            input_tuple = struct.unpack(
+                'h' * self.block_len, input_bytes)  # Convert
+
             output_block = np.array(input_tuple)
 
             if self.view.echo_enable.get():
@@ -106,14 +113,17 @@ class App:
                 output_block += self.am_effect.apply(self.view, input_tuple)
 
             if self.view.vibrato_enable.get():
-                output_block += self.vibrato_effect.apply(self.view, input_tuple)
+                output_block += self.vibrato_effect.apply(
+                    self.view, input_tuple)
 
             if self.view.pitchshift_enable.get():
-                output_block += self.pitchshift_effect.apply(self.view, input_tuple)
+                output_block += self.pitchshift_effect.apply(
+                    self.view, input_tuple)
 
             if self.view.chorus_enable.get():
-                output_block += self.chorus_effect.apply(self.view, input_tuple)
-            
+                output_block += self.chorus_effect.apply(
+                    self.view, input_tuple)
+
             # Spectrum Plot
             if self.view.show_spectrum and s_count > 1:
                 s_count = 0
@@ -133,7 +143,7 @@ class App:
                 self.view.wave_y.set_ydata(output_block)
             else:
                 w_count += 1
-            
+
             output_block = np.clip(output_block, -32768, 32767)
 
             binary_data = struct.pack('h' * self.block_len, *output_block)
@@ -141,9 +151,9 @@ class App:
 
             if hasattr(self, 'output_wf') and self.output_wf:
                 self.output_wf.writeframes(binary_data)
-            
+
             self.view.update()
-        
+
         self.stop_audio()
         self.audio.terminate()
 
@@ -163,8 +173,20 @@ class App:
         self.mode = mode
 
     def show_ts(self):
-        asyncio.run(self.ts.send_receive())
+        func = self.ts.send_receive()
+        new_loop = asyncio.new_event_loop()
+        t = threading.Thread(target=self.get_loop, args=(new_loop,))
+        t.start()
 
+        asyncio.run_coroutine_threadsafe(func, new_loop)
+
+    def get_loop(self, loop):
+        self.loop = loop
+        asyncio.set_event_loop(self.loop)
+        self.loop.run_forever()
+
+
+#app = App()
+#
 app = App()
 app.start()
-app.show_ts()
