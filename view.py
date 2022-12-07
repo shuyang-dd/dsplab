@@ -14,6 +14,7 @@ class View(Tk.Tk):
         self.running = True
         self.show_wave = False
         self.show_spectrum = False
+        self.show_transcript = False
 
         # Variables
         self.status = Tk.StringVar(value='Stopped')
@@ -54,7 +55,7 @@ class View(Tk.Tk):
             bd = 1
         ).grid(row=0, column=3, padx = 10, sticky='E')
 
-        # IO Frame: 2ed Line
+        # IO Frame: 2nd Line
         self.open_btn = Tk.Button(
             self.io_frame,
             text = 'Open File',
@@ -94,85 +95,9 @@ class View(Tk.Tk):
         )
         self.save_entry.grid(row=2, column=1, columnspan=3)
 
-        # IO Frame: 4th Line
-        Tk.Button(
-            self.io_frame,
-            text = 'Start',
-            padx = 22,
-            bd = 1,
-            command = self.start_play
-        ).grid(row=3, column=0, pady = 8)
-
-        Tk.Button(
-            self.io_frame,
-            text = 'Stop',
-            padx = 22,
-            bd = 1,
-            command = self.stop_play
-        ).grid(row=3, column=1, pady = 8)
-
-
-        ##### Effect Selector #####
-        self.effect_selector = Tk.LabelFrame(self, text="Sound Effects", padx=8, pady=5)
-        self.effect_selector.grid(row=1, column=0, pady=5, sticky='NW', rowspan=2)
-        
-        self.echo_enable = Tk.BooleanVar()
-        self.vibrato_enable = Tk.BooleanVar()
-        self.am_enable = Tk.BooleanVar()
-        self.pitchshift_enable = Tk.BooleanVar()
-        self.chorus_enable = Tk.BooleanVar()
-
-        Tk.Label(
-            self.effect_selector,
-            text = 'Enable',
-            padx = 3,
-            relief = Tk.SUNKEN,
-            bd = 1
-        ).grid(row=0, column=0, pady=5)
-
-        Tk.Checkbutton(
-            self.effect_selector,
-            text = 'Echo',
-            variable = self.echo_enable,
-            onvalue = True,
-            offvalue = False
-        ).grid(row=1, column=0, sticky='W')
-
-        Tk.Checkbutton(
-            self.effect_selector,
-            text = 'Vibrato',
-            variable = self.vibrato_enable,
-            onvalue = True,
-            offvalue = False
-        ).grid(row=2, column=0, sticky='W')
-        
-        Tk.Checkbutton(
-            self.effect_selector,
-            text = 'Pitch Shift',
-            variable = self.pitchshift_enable,
-            onvalue = True,
-            offvalue = False
-        ).grid(row=3, column=0, sticky='W')
-        
-        Tk.Checkbutton(
-            self.effect_selector,
-            text = 'Chorus',
-            variable = self.chorus_enable,
-            onvalue = True,
-            offvalue = False
-        ).grid(row=4, column=0, sticky='W')
-
-        Tk.Checkbutton(
-            self.effect_selector,
-            text = 'AM',
-            variable = self.am_enable,
-            onvalue = True,
-            offvalue = False
-        ).grid(row=5, column=0, sticky='W')
-
-        ##### Options #####
-        self.button_frame = Tk.LabelFrame(self, text="Options", padx=15, pady=9)
-        self.button_frame.grid(row=2, column=1, columnspan=2, sticky='NE')
+        ##### Advanced Options #####
+        self.button_frame = Tk.LabelFrame(self, text="Advanced Options", padx=5, pady=10)
+        self.button_frame.grid(row=2, column=0, columnspan=2)
 
         # Button - Wave Graph
         Tk.Button(
@@ -190,11 +115,42 @@ class View(Tk.Tk):
             padx = 10,
             bd = 1,
             command = self.open_spectrum
-        ).grid(row=0, column=1, padx=32)
+        ).grid(row=0, column=1)
+
+        # Button - Transcript
+        Tk.Button(
+            self.button_frame,
+            text = 'Transcript',
+            padx = 10,
+            bd = 1,
+            command = self.open_transcript
+        ).grid(row=0, column=2)
+
+        ##### General Options #####
+        self.general_btn = Tk.LabelFrame(self, padx=5)
+        self.general_btn.grid(row=3, column=0, columnspan=2)
+        
+        # Button - start
+        Tk.Button(
+            self.general_btn,
+            text = 'Start',
+            padx = 22,
+            bd = 1,
+            command = self.start_play
+        ).grid(row=0, column=0, pady = 8)
+
+        # Button - stop
+        Tk.Button(
+            self.general_btn,
+            text = 'Stop',
+            padx = 22,
+            bd = 1,
+            command = self.stop_play
+        ).grid(row=0, column=1, pady = 8)
 
         # Button - Quit
         Tk.Button(
-            self.button_frame,
+            self.general_btn,
             text = 'Quit',
             padx = 16,
             bd = 1,
@@ -203,8 +159,8 @@ class View(Tk.Tk):
 
 
         ##### Effect Frame #####
-        self.effect_frame = Tk.LabelFrame(self, text="Effect Configure", padx=5)
-        self.effect_frame.grid(row=1, column=1, sticky='NE', pady=5)
+        self.effect_frame = Tk.LabelFrame(self, text="Effect Select & Adjust", padx=5)
+        self.effect_frame.grid(row=1, column=0, columnspan=2)
 
         # Effect Frame - mode select
         self.effect_radio = Tk.Frame(self.effect_frame)
@@ -212,6 +168,12 @@ class View(Tk.Tk):
 
         self.effect_mode = Tk.IntVar(value=0)
         
+        self.echo_enable = Tk.BooleanVar()
+        self.vibrato_enable = Tk.BooleanVar()
+        self.am_enable = Tk.BooleanVar()
+        self.pitchshift_enable = Tk.BooleanVar()
+        self.chorus_enable = Tk.BooleanVar()
+
         Tk.Radiobutton(
             self.effect_radio,
             text="Echo",
@@ -429,6 +391,28 @@ class View(Tk.Tk):
         self.spectrum_y.set_ydata(np.zeros(self.app.block_len))
 
         plt.legend()
+
+    def open_transcript(self):
+        self.show_transcript = True
+        
+        # root = Tk.Tk()
+        # S = Tk.Scrollbar(root)
+        # T = Tk.Text(root, height=4, width=50)
+        # S.pack(side=Tk.RIGHT, fill=Tk.Y)
+        # T.pack(side=Tk.LEFT, fill=Tk.Y)
+        # S.config(command=T.yview)
+        # T.config(yscrollcommand=S.set)
+        # quote = """HAMLET: To be, or not to be--that is the question:
+        # Whether 'tis nobler in the mind to suffer
+        # The slings and arrows of outrageous fortune
+        # Or to take arms against a sea of troubles
+        # And by opposing end them. To die, to sleep--
+        # No more--and by a sleep to say we end
+        # The heartache, and the thousand natural shocks
+        # That flesh is heir to. 'Tis a consummation
+        # Devoutly to be wished."""
+        # T.insert(Tk.END, quote)
+        # Tk.mainloop()
     
     def generate_slider(self, frame, slider_var, row, title, min_num, max_num, resolution):
         Tk.Label(
