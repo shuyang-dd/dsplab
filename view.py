@@ -119,14 +119,6 @@ class View(Tk.Tk):
             command = self.open_spectrum
         ).grid(row=0, column=1)
 
-        # Button - Transcript
-        Tk.Button(
-            self.button_frame,
-            text = 'Transcript',
-            padx = 10,
-            bd = 1,
-            command = self.open_transcript
-        ).grid(row=0, column=2)
 
         ##### General Options #####
         self.general_btn = Tk.LabelFrame(self, padx=5)
@@ -414,28 +406,6 @@ class View(Tk.Tk):
         self.spectrum_y.set_ydata(np.zeros(self.app.block_len))
 
         plt.legend()
-
-    def open_transcript(self):
-        self.show_transcript = True
-        
-        # root = Tk.Tk()
-        # S = Tk.Scrollbar(root)
-        # T = Tk.Text(root, height=4, width=50)
-        # S.pack(side=Tk.RIGHT, fill=Tk.Y)
-        # T.pack(side=Tk.LEFT, fill=Tk.Y)
-        # S.config(command=T.yview)
-        # T.config(yscrollcommand=S.set)
-        # quote = """HAMLET: To be, or not to be--that is the question:
-        # Whether 'tis nobler in the mind to suffer
-        # The slings and arrows of outrageous fortune
-        # Or to take arms against a sea of troubles
-        # And by opposing end them. To die, to sleep--
-        # No more--and by a sleep to say we end
-        # The heartache, and the thousand natural shocks
-        # That flesh is heir to. 'Tis a consummation
-        # Devoutly to be wished."""
-        # T.insert(Tk.END, quote)
-        # Tk.mainloop()
     
     def generate_slider(self, frame, slider_var, row, title, min_num, max_num, resolution):
         Tk.Label(
