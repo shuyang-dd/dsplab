@@ -15,7 +15,7 @@ URL = "wss://api.assemblyai.com/v2/realtime/ws?sample_rate=16000"
 
 
 class Transcripter:
-    text = "111"
+    text = "waiting for input..."
 
     def __init__(self) -> None:
         self.block_len = BLOCKLEN
@@ -67,7 +67,7 @@ class Transcripter:
                         result_str = json.loads(result_str)['text']
 
                         Transcripter.text = result_str
-                        print(result_str)
+                        # print(result_str)
                         #print("self test"+self.text)
 
                     except websockets.exceptions.ConnectionClosedError as e:
@@ -84,5 +84,5 @@ class Transcripter:
         return self.text
 
 
-ts = Transcripter()
-asyncio.run(ts.send_receive())
+# ts = Transcripter()
+# asyncio.run(ts.send_receive())

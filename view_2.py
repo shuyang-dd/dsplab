@@ -17,6 +17,7 @@ class View(Tk.Tk):
         self.running = True
         self.show_wave = False
         self.show_spectrum = False
+        self.show_transcript = False
 
         # Variables
         self.status = Tk.StringVar(value='Stopped')
@@ -24,10 +25,12 @@ class View(Tk.Tk):
         self.save_file = Tk.BooleanVar()
         self.save_name = Tk.StringVar(value='recording.wav')
 
+        # transcript
         self.message = Tk.Label(
             self, text="transcripting: "+self.Transcripter.text)
         self.message.grid(row=6, column=0, sticky='W')
         self.update_text()
+
         ##### IO Frame #####
         self.io_frame = Tk.LabelFrame(
             self, text="Input/Output Setting", padx=5, pady=5)
@@ -55,15 +58,17 @@ class View(Tk.Tk):
 
         Tk.Label(self.io_frame, text='Status:').grid(
             row=0, column=2, sticky='E')
-        Tk.Label(
+        self.status_label = Tk.Label(
             self.io_frame,
             textvariable=self.status,
+            fg='red',
             width=12,
             relief=Tk.SUNKEN,
             bd=1
-        ).grid(row=0, column=3, padx=10, sticky='E')
+        )
+        self.status_label.grid(row=0, column=3, padx=10, sticky='E')
 
-        # IO Frame: 2ed Line
+        # IO Frame: 2nd Line
         self.open_btn = Tk.Button(
             self.io_frame,
             text='Open File',
@@ -103,87 +108,10 @@ class View(Tk.Tk):
         )
         self.save_entry.grid(row=2, column=1, columnspan=3)
 
-        # IO Frame: 4th Line
-        Tk.Button(
-            self.io_frame,
-            text='Start',
-            padx=22,
-            bd=1,
-            command=self.start_play
-        ).grid(row=3, column=0, pady=8)
-
-        Tk.Button(
-            self.io_frame,
-            text='Stop',
-            padx=22,
-            bd=1,
-            command=self.stop_play
-        ).grid(row=3, column=1, pady=8)
-
-        ##### Effect Selector #####
-        self.effect_selector = Tk.LabelFrame(
-            self, text="Sound Effects", padx=8, pady=5)
-        self.effect_selector.grid(
-            row=1, column=0, pady=5, sticky='NW', rowspan=2)
-
-        self.echo_enable = Tk.BooleanVar()
-        self.vibrato_enable = Tk.BooleanVar()
-        self.am_enable = Tk.BooleanVar()
-        self.pitchshift_enable = Tk.BooleanVar()
-        self.chorus_enable = Tk.BooleanVar()
-
-        Tk.Label(
-            self.effect_selector,
-            text='Enable',
-            padx=3,
-            relief=Tk.SUNKEN,
-            bd=1
-        ).grid(row=0, column=0, pady=5)
-
-        Tk.Checkbutton(
-            self.effect_selector,
-            text='Echo',
-            variable=self.echo_enable,
-            onvalue=True,
-            offvalue=False
-        ).grid(row=1, column=0, sticky='W')
-
-        Tk.Checkbutton(
-            self.effect_selector,
-            text='Vibrato',
-            variable=self.vibrato_enable,
-            onvalue=True,
-            offvalue=False
-        ).grid(row=2, column=0, sticky='W')
-
-        Tk.Checkbutton(
-            self.effect_selector,
-            text='Pitch Shift',
-            variable=self.pitchshift_enable,
-            onvalue=True,
-            offvalue=False
-        ).grid(row=3, column=0, sticky='W')
-
-        Tk.Checkbutton(
-            self.effect_selector,
-            text='Chorus',
-            variable=self.chorus_enable,
-            onvalue=True,
-            offvalue=False
-        ).grid(row=4, column=0, sticky='W')
-
-        Tk.Checkbutton(
-            self.effect_selector,
-            text='AM',
-            variable=self.am_enable,
-            onvalue=True,
-            offvalue=False
-        ).grid(row=5, column=0, sticky='W')
-
-        ##### Options #####
+        ##### Advanced Options #####
         self.button_frame = Tk.LabelFrame(
-            self, text="Options", padx=15, pady=9)
-        self.button_frame.grid(row=2, column=1, columnspan=2, sticky='NE')
+            self, text="Advanced Options", padx=5, pady=10)
+        self.button_frame.grid(row=2, column=0, columnspan=2)
 
         # Button - Wave Graph
         Tk.Button(
@@ -201,11 +129,33 @@ class View(Tk.Tk):
             padx=10,
             bd=1,
             command=self.open_spectrum
-        ).grid(row=0, column=1, padx=32)
+        ).grid(row=0, column=1)
+
+        ##### General Options #####
+        self.general_btn = Tk.LabelFrame(self, padx=5)
+        self.general_btn.grid(row=3, column=0, columnspan=2)
+
+        # Button - start
+        Tk.Button(
+            self.general_btn,
+            text='Start',
+            padx=22,
+            bd=1,
+            command=self.start_play
+        ).grid(row=0, column=0, pady=8)
+
+        # Button - stop
+        Tk.Button(
+            self.general_btn,
+            text='Stop',
+            padx=22,
+            bd=1,
+            command=self.stop_play
+        ).grid(row=0, column=1, pady=8)
 
         # Button - Quit
         Tk.Button(
-            self.button_frame,
+            self.general_btn,
             text='Quit',
             padx=16,
             bd=1,
@@ -214,14 +164,20 @@ class View(Tk.Tk):
 
         ##### Effect Frame #####
         self.effect_frame = Tk.LabelFrame(
-            self, text="Effect Configure", padx=5)
-        self.effect_frame.grid(row=1, column=1, sticky='NE', pady=5)
+            self, text="Effect Select & Adjust", padx=5)
+        self.effect_frame.grid(row=1, column=0, columnspan=2)
 
         # Effect Frame - mode select
         self.effect_radio = Tk.Frame(self.effect_frame)
         self.effect_radio.grid(row=0, column=0, sticky='W')
 
         self.effect_mode = Tk.IntVar(value=0)
+
+        self.echo_enable = Tk.BooleanVar()
+        self.vibrato_enable = Tk.BooleanVar()
+        self.am_enable = Tk.BooleanVar()
+        self.pitchshift_enable = Tk.BooleanVar()
+        self.chorus_enable = Tk.BooleanVar()
 
         Tk.Radiobutton(
             self.effect_radio,
@@ -343,7 +299,7 @@ class View(Tk.Tk):
 
     def update_text(self):
         #self.view_text = self.Transcripter.text
-        print("view"+self.Transcripter.text)
+        # print("view"+self.Transcripter.text)
         self.message.config(text="transcripting: " +
                             self.Transcripter.text)
 
@@ -363,6 +319,22 @@ class View(Tk.Tk):
             else:
                 frame.grid_remove()
 
+        self.echo_enable.set(False)
+        self.vibrato_enable.set(False)
+        self.am_enable.set(False)
+        self.pitchshift_enable.set(False)
+        self.chorus_enable.set(False)
+        if mode == 0:
+            self.echo_enable.set(True)
+        elif mode == 1:
+            self.vibrato_enable.set(True)
+        elif mode == 2:
+            self.pitchshift_enable.set(True)
+        elif mode == 3:
+            self.chorus_enable.set(True)
+        elif mode == 4:
+            self.am_enable.set(True)
+
     def on_input_change(self):
         mode = self.input_mode.get()
         if mode == 1:
@@ -375,14 +347,17 @@ class View(Tk.Tk):
         if filepath:
             self.file_path.set(filepath)
             self.status.set('File Opened')
+            self.status_label.config(fg="blue")
 
     def start_play(self):
         mode = self.input_mode.get()
         if mode == 1:
             self.status.set('Recording')
+            self.status_label.config(fg="green")
         elif mode == 2:
             if self.file_path.get():
                 self.status.set('Playing')
+                self.status_label.config(fg="green")
             else:
                 messagebox.showerror('Error', 'Please open a wave file')
                 return
@@ -396,8 +371,10 @@ class View(Tk.Tk):
     def stop_play(self):
         if self.save_file.get():
             self.status.set('File Saved')
+            self.status_label.config(fg="orange")
         else:
             self.status.set('Stopped')
+            self.status_label.config(fg="red")
         self.mic_btn.configure(state='normal')
         self.file_btn.configure(state='normal')
         self.open_btn.configure(state='normal')
@@ -413,7 +390,7 @@ class View(Tk.Tk):
 
         self.show_wave = True
         self.wave_x, = plt.plot([], [], color='blue', label='Original')
-        self.wave_y, = plt.plot([], [], color='orange', label='Processed')
+        self.wave_y, = plt.plot([], [], color='red', label='Processed')
 
         t = [n*1000/float(self.app.rate) for n in range(self.app.block_len)]
 
@@ -439,7 +416,7 @@ class View(Tk.Tk):
 
         self.show_spectrum = True
         self.spectrum_x, = plt.plot([], [], color='blue', label='Original')
-        self.spectrum_y, = plt.plot([], [], color='orange', label='Processed')
+        self.spectrum_y, = plt.plot([], [], color='red', label='Processed')
 
         f = self.app.rate / self.app.block_len * \
             np.arange(0, self.app.block_len)

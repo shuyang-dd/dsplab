@@ -8,7 +8,7 @@ from effects.am import *
 from effects.pitchshift import *
 from effects.chorus import *
 
-from view import View
+from view_2 import View
 import wave
 import pyaudio
 import struct
