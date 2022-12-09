@@ -1,14 +1,15 @@
-from effects.effect import Effect
 import numpy as np
+from filter.function import Function
 
-class PitchShift(Effect):
+
+class WomanFilter(Function):
     def __init__(self, rate, block_len):
         super().__init__(rate, block_len)
-    
+
     def apply(self, view, input_tuple):
 
-        gain = view.pitchshift_gain.get() / 100
-        alpha = view.pitchshift_freq.get()
+        gain = view.woman_gain.get() / 100
+        alpha = view.woman_freq.get()
 
         shift = int(alpha / self.rate * len(input_tuple))
         signal_fft = np.fft.rfft(input_tuple)

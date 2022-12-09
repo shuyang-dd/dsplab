@@ -1,16 +1,17 @@
 import math
-from effects.effect import Effect
+from filter.function import Function
 
-class VibratoEffect(Effect):
+
+class AlienFilter(Function):
     def __init__(self, rate, block_len):
         super().__init__(rate, block_len)
 
-        # Vibrato parameters
+        # alien parameters
         self.f0 = 10
         self.W = 0.2   # W = 0 for no effect
 
         # Buffer to store past signal values. Initialize to zero.
-        self.buffer_len =  1024          # Set buffer length.
+        self.buffer_len = 1024          # Set buffer length.
         self.buffer = self.buffer_len * [0]   # list of zeros
 
         # Buffer (delay line) indices
@@ -19,11 +20,11 @@ class VibratoEffect(Effect):
 
         self.om = 2 * math.pi * self.f0 / self.rate
         self.theta = 0
-        
+
     def apply(self, view, input_tuple):
 
-        self.f0 = view.vibrato_f0.get()
-        self.W = view.vibrato_w.get()   # W = 0 for no effect
+        self.f0 = view.alien_f0.get()
+        self.W = view.alien_w.get()   # W = 0 for no effect
 
         self.om = 2 * math.pi * self.f0 / self.rate
 
@@ -40,7 +41,8 @@ class VibratoEffect(Effect):
                 kr_next = 0
 
             # Compute output value using interpolation
-            diff_block[n] = int((1-frac) * self.buffer[kr_prev] + frac * self.buffer[kr_next]) - x0
+            diff_block[n] = int(
+                (1-frac) * self.buffer[kr_prev] + frac * self.buffer[kr_next]) - x0
 
             # Update buffer
             self.buffer[self.kw] = x0
@@ -57,7 +59,7 @@ class VibratoEffect(Effect):
                 # End of buffer. Circle back to front.
                 self.kr = self.kr - self.buffer_len
 
-            # Increment write index    
+            # Increment write index
             self.kw = self.kw + 1
             if self.kw == self.buffer_len:
                 # End of buffer. Circle back to front.

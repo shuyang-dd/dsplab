@@ -2,11 +2,11 @@
 # TKinter demo
 # Play a sinusoid using Pyaudio. Use two sliders to adjust the frequency and gain.
 
-from effects.echo import *
-from effects.vibrato import *
-from effects.am import *
-from effects.pitchshift import *
-from effects.chorus import *
+from filter.echo import *
+from filter.alien import *
+from filter.man import *
+from filter.woman import *
+from filter.robot import *
 
 from view_2 import View
 import wave
@@ -40,11 +40,11 @@ class App:
 
     def set_rate(self, rate):
         self.rate = rate
-        self.echo_effect = EchoEffect(rate, self.block_len)
-        self.vibrato_effect = VibratoEffect(rate, self.block_len)
-        self.am_effect = AMEffect(rate, self.block_len)
-        self.pitchshift_effect = PitchShift(rate, self.block_len)
-        self.chorus_effect = ChorusEffect(rate, self.block_len)
+        self.echo_filter = EchoFilter(rate, self.block_len)
+        self.alien_filter = AlienFilter(rate, self.block_len)
+        self.robot_filter = RobotFilter(rate, self.block_len)
+        self.man_filter = ManFilter(rate, self.block_len)
+        self.woman_filter = WomanFilter(rate, self.block_len)
 
     def update_io(self):
         if self.mode == 0:
@@ -107,42 +107,36 @@ class App:
             output_block = np.array(input_tuple)
 
             if self.view.echo_enable.get():
-                output_block += self.echo_effect.apply(self.view, input_tuple)
+                output_block += self.echo_filter.apply(self.view, input_tuple)
 
-            if self.view.am_enable.get():
-                output_block += self.am_effect.apply(self.view, input_tuple)
+            if self.view.robot_enable.get():
+                output_block += self.robot_filter.apply(self.view, input_tuple)
 
-            if self.view.vibrato_enable.get():
-                output_block += self.vibrato_effect.apply(
+            if self.view.alien_enable.get():
+                output_block += self.alien_filter.apply(
                     self.view, input_tuple)
 
-            if self.view.pitchshift_enable.get():
-                output_block += self.pitchshift_effect.apply(
+            if self.view.man_enable.get():
+                output_block += self.man_filter.apply(
                     self.view, input_tuple)
 
-            if self.view.chorus_enable.get():
-                output_block += self.chorus_effect.apply(
+            if self.view.woman_enable.get():
+                output_block += self.woman_filter.apply(
                     self.view, input_tuple)
 
             # Spectrum Plot
-            if self.view.show_spectrum and s_count > 1:
-                s_count = 0
+            if self.view.show_spectrum:
                 X = np.fft.fft(input_tuple, norm="ortho") / self.rate
                 Y = np.fft.fft(output_block, norm="ortho") / self.rate
 
                 # Update y-data of plot
                 self.view.spectrum_x.set_ydata(np.abs(X))
                 self.view.spectrum_y.set_ydata(np.abs(Y))
-            else:
-                s_count += 1
 
             # Wave Plot
-            if self.view.show_wave and w_count > 0:
-                w_count = 0
+            if self.view.show_wave:
                 self.view.wave_x.set_ydata(input_tuple)
                 self.view.wave_y.set_ydata(output_block)
-            else:
-                w_count += 1
 
             output_block = np.clip(output_block, -32768, 32767)
 
@@ -186,7 +180,5 @@ class App:
         self.loop.run_forever()
 
 
-#app = App()
-#
 app = App()
 app.start()

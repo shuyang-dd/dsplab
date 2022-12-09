@@ -4,6 +4,7 @@ import numpy as np
 from tkinter import filedialog as fd
 from tkinter import messagebox
 from Transcripter import Transcripter
+from tkinter import ttk
 
 
 class View(Tk.Tk):
@@ -174,10 +175,10 @@ class View(Tk.Tk):
         self.effect_mode = Tk.IntVar(value=0)
 
         self.echo_enable = Tk.BooleanVar()
-        self.vibrato_enable = Tk.BooleanVar()
-        self.am_enable = Tk.BooleanVar()
-        self.pitchshift_enable = Tk.BooleanVar()
-        self.chorus_enable = Tk.BooleanVar()
+        self.alien_enable = Tk.BooleanVar()
+        self.robot_enable = Tk.BooleanVar()
+        self.man_enable = Tk.BooleanVar()
+        self.woman_enable = Tk.BooleanVar()
 
         Tk.Radiobutton(
             self.effect_radio,
@@ -189,7 +190,7 @@ class View(Tk.Tk):
 
         Tk.Radiobutton(
             self.effect_radio,
-            text="Vibrato",
+            text="Alien",
             variable=self.effect_mode,
             value=1,
             command=self.on_effect_mode_change
@@ -197,7 +198,7 @@ class View(Tk.Tk):
 
         Tk.Radiobutton(
             self.effect_radio,
-            text="Pitch Shift",
+            text="Man",
             variable=self.effect_mode,
             value=2,
             command=self.on_effect_mode_change
@@ -205,7 +206,7 @@ class View(Tk.Tk):
 
         Tk.Radiobutton(
             self.effect_radio,
-            text="Chorus",
+            text="Woman",
             variable=self.effect_mode,
             value=3,
             command=self.on_effect_mode_change
@@ -213,7 +214,7 @@ class View(Tk.Tk):
 
         Tk.Radiobutton(
             self.effect_radio,
-            text="AM",
+            text="Robot",
             variable=self.effect_mode,
             value=4,
             command=self.on_effect_mode_change
@@ -234,67 +235,64 @@ class View(Tk.Tk):
         self.generate_slider(self.echo_frame, self.echo_delay,
                              1, 'Delay (s)', 0.01, 0.50, 0.01)
 
-        ### Vibrato ###
-        self.vibrato_frame = Tk.Frame(self.effect_frame, padx=5)
-        # self.vibrato_frame.grid(row=1, column=0, sticky='W')
+        ### alien ###
+        self.alien_frame = Tk.Frame(self.effect_frame, padx=5)
 
-        self.vibrato_f0 = Tk.DoubleVar(value=5)
-        self.vibrato_w = Tk.DoubleVar(value=0.2)
+        self.alien_f0 = Tk.DoubleVar(value=5)
+        self.alien_w = Tk.DoubleVar(value=0.2)
 
         # First line
-        self.generate_slider(self.vibrato_frame, self.vibrato_f0,
-                             0, 'Oscillation f0', 1.0, 10.0, 1.0)
+        self.generate_slider(self.alien_frame, self.alien_f0,
+                             0, 'Frequency', 1.0, 10.0, 1.0)
 
         # Second line
-        self.generate_slider(self.vibrato_frame, self.vibrato_w,
-                             1, 'Oscillation W', 0.1, 0.5, 0.1)
+        self.generate_slider(self.alien_frame, self.alien_w,
+                             1, 'Oscillation', 0.2, 1.0, 0.1)
 
-        ### Amplitude modulation ###
-        self.am_frame = Tk.Frame(self.effect_frame, padx=5)
-        # self.am_frame.grid(row=1, column=0, sticky='W')
+        ### robot am ###
+        self.robot_frame = Tk.Frame(self.effect_frame, padx=5)
 
-        self.am_feedback = Tk.DoubleVar(value=80)
-        self.am_frequency = Tk.DoubleVar(value=200)
+        self.robot_feedback = Tk.DoubleVar(value=80)
+        self.robot_frequency = Tk.DoubleVar(value=200)
 
         # First line
-        self.generate_slider(self.am_frame, self.am_feedback,
+        self.generate_slider(self.robot_frame, self.robot_feedback,
                              0, 'Gain (%)', 0.0, 100.0, 1.0)
 
         # Second line
-        self.generate_slider(self.am_frame, self.am_frequency,
-                             1, 'Frequency (Hz)', 0, 1000, 50)
+        self.generate_slider(self.robot_frame, self.robot_frequency,
+                             1, 'Frequency (Hz)', 200, 1000, 50)
 
-        ### Pitch Shift ###
-        self.pitchshift_frame = Tk.Frame(self.effect_frame, padx=5)
-        # self.vibrato_frame.grid(row=1, column=0, sticky='W')
+        ### man ###
+        self.man_frame = Tk.Frame(self.effect_frame, padx=5)
 
-        self.pitchshift_gain = Tk.DoubleVar(value=80)
-        self.pitchshift_freq = Tk.DoubleVar(value=200)
+        self.man_gain = Tk.DoubleVar(value=80)
+        self.man_freq = Tk.DoubleVar(value=100)
 
         # First line
-        self.generate_slider(self.pitchshift_frame, self.pitchshift_gain,
+        self.generate_slider(self.man_frame, self.man_gain,
                              0, 'Gain (%)', 1.0, 100.0, 1.0)
 
         # Second line
-        self.generate_slider(self.pitchshift_frame, self.pitchshift_freq,
-                             1, 'Shift Freq (Hz)', -200, 500, 10.0)
+        self.generate_slider(self.man_frame, self.man_freq,
+                             1, 'Shift Freq (Hz)', -800, 100, 10.0)
 
-        ### Chorus ###
-        self.chorus_frame = Tk.Frame(self.effect_frame, padx=5)
+        ### Woman ###
+        self.woman_frame = Tk.Frame(self.effect_frame, padx=5)
 
-        self.chorus_w = Tk.DoubleVar(value=0.05)
-        self.chorus_gain = Tk.DoubleVar(value=80)
+        self.woman_gain = Tk.DoubleVar(value=80)
+        self.woman_freq = Tk.DoubleVar(value=0)
 
         # First line
-        self.generate_slider(self.chorus_frame, self.chorus_gain,
-                             0, 'Gain (%)', 0, 100, 1)
+        self.generate_slider(self.woman_frame, self.woman_gain,
+                             0, 'Gain (%)', 1.0, 100.0, 1.0)
 
         # Second line
-        self.generate_slider(self.chorus_frame, self.chorus_w,
-                             1, 'Oscillation W', 0.01, 0.25, 0.01)
+        self.generate_slider(self.woman_frame, self.woman_freq,
+                             1, 'Shift Freq (Hz)', 0, 1000, 10.0)
 
-        self.frames = [self.echo_frame, self.vibrato_frame,
-                       self.pitchshift_frame, self.chorus_frame, self.am_frame]
+        self.frames = [self.echo_frame, self.alien_frame,
+                       self.man_frame, self.woman_frame, self.robot_frame]
         plt.ion()
 
     def update_text(self):
@@ -320,20 +318,20 @@ class View(Tk.Tk):
                 frame.grid_remove()
 
         self.echo_enable.set(False)
-        self.vibrato_enable.set(False)
-        self.am_enable.set(False)
-        self.pitchshift_enable.set(False)
-        self.chorus_enable.set(False)
+        self.alien_enable.set(False)
+        self.robot_enable.set(False)
+        self.man_enable.set(False)
+        self.woman_enable.set(False)
         if mode == 0:
             self.echo_enable.set(True)
         elif mode == 1:
-            self.vibrato_enable.set(True)
+            self.alien_enable.set(True)
         elif mode == 2:
-            self.pitchshift_enable.set(True)
+            self.man_enable.set(True)
         elif mode == 3:
-            self.chorus_enable.set(True)
+            self.woman_enable.set(True)
         elif mode == 4:
-            self.am_enable.set(True)
+            self.robot_enable.set(True)
 
     def on_input_change(self):
         mode = self.input_mode.get()
