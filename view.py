@@ -4,11 +4,13 @@ import numpy as np
 from tkinter import filedialog as fd
 from tkinter import messagebox
 from Transcripter import Transcripter
-
+import TKinterModernThemes as TKMT 
 
 class View(Tk.Tk):
+
     def __init__(self, app):
         super().__init__()
+        # super().__init__(str("TITLE"), str("park"), str("dark"))
         self.app = app
         self.Transcripter = Transcripter()
         self.config(padx=10, pady=6)
@@ -25,12 +27,12 @@ class View(Tk.Tk):
         self.save_file = Tk.BooleanVar()
         self.save_name = Tk.StringVar(value='recording.wav')
 
-        # transcript
+        # Transcript
         self.message = Tk.Label(
-            self, text="transcripting: "+self.Transcripter.text)
+            self, text="Transcripting: "+self.Transcripter.text, font=('Arial', 12))
         self.message.grid(row=6, column=0, sticky='W')
         self.update_text()
-
+        
         ##### IO Frame #####
         self.io_frame = Tk.LabelFrame(
             self, text="Input/Output Setting", padx=5, pady=5)
@@ -300,7 +302,7 @@ class View(Tk.Tk):
     def update_text(self):
         #self.view_text = self.Transcripter.text
         # print("view"+self.Transcripter.text)
-        self.message.config(text="transcripting: " +
+        self.message.config(text="Transcripting: " +
                             self.Transcripter.text)
 
         self.after(100, self.update_text)
