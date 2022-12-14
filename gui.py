@@ -8,7 +8,7 @@ from tkinter import ttk
 import sv_ttk
 
 
-class View(Tk.Tk):
+class GUI(Tk.Tk):
     def __init__(self, app):
         super().__init__()
         self.app = app
