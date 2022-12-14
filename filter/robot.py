@@ -7,17 +7,14 @@ class RobotFilter(Function):
         super().__init__(rate, block_len)
         self.theta = 0
 
-    def apply(self, view, input_tuple):
+    def activate(self, view, input_tuple):
 
         self.gain = view.robot_gain.get() / 100
         self.f0 = view.robot_frequency.get()
 
         diff_block = [0] * self.block_len
 
-        # Initialize phase
         self.om = 2 * math.pi * self.f0 / self.rate
-
-        # self.theta = 0
 
         for n in range(0, self.block_len):
 
@@ -26,7 +23,6 @@ class RobotFilter(Function):
             self.theta = self.theta + self.om
             diff_block[n] = int(self.gain * (x0 * math.cos(self.theta) - x0))
 
-        # keep theta betwen -pi and pi
         while self.theta > math.pi:
             self.theta = self.theta - 2*math.pi
 

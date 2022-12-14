@@ -4,7 +4,6 @@ class Function:
         self.block_len = block_len
 
     def clip16(self, x):
-        # Clipping for 16 bits
         if x > 32767:
             x = 32767
         elif x < -32768:
@@ -13,5 +12,5 @@ class Function:
             x = x
         return int(x)
 
-    def apply(self, view, input_tuple):
+    def activate(self, view, input_tuple):
         pass

@@ -104,21 +104,23 @@ class App:
             output_block = np.array(input_tuple)
 
             if self.view.echo_enable.get():
-                output_block = self.echo_filter.apply(self.view, input_tuple)
+                output_block = self.echo_filter.activate(
+                    self.view, input_tuple)
 
             if self.view.robot_enable.get():
-                output_block = self.robot_filter.apply(self.view, input_tuple)
+                output_block = self.robot_filter.activate(
+                    self.view, input_tuple)
 
             if self.view.alien_enable.get():
-                output_block = self.alien_filter.apply(
+                output_block = self.alien_filter.activate(
                     self.view, input_tuple)
 
             if self.view.man_enable.get():
-                output_block = self.man_filter.apply(
+                output_block = self.man_filter.activate(
                     self.view, input_tuple)
 
             if self.view.woman_enable.get():
-                output_block = self.woman_filter.apply(
+                output_block = self.woman_filter.activate(
                     self.view, input_tuple)
 
             # spectrum graph

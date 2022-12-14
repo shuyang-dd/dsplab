@@ -6,7 +6,7 @@ class ManFilter(Function):
     def __init__(self, rate, block_len):
         super().__init__(rate, block_len)
 
-    def apply(self, view, input_tuple):
+    def activate(self, view, input_tuple):
 
         gain = view.man_gain.get() / 100
         alpha = view.man_freq.get()
@@ -14,7 +14,6 @@ class ManFilter(Function):
         shift = int(alpha / self.rate * len(input_tuple))
         signal_fft = np.fft.rfft(input_tuple)
         signal_fft_rolled = np.roll(signal_fft, shift)
-        #print(signal_fft[len(signal_fft) - 5:])
         if alpha >= 0:
             signal_fft_rolled[0:shift] = 0
         else:
