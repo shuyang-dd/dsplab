@@ -30,14 +30,14 @@ class AlienFilter(Function):
         for n in range(0, self.block_len):
             x0 = input_tuple[n]
 
-            read_index = int(math.floor(self.read_index))
-            frac = self.read_index - read_index
-            read_index_next = read_index + 1
+            read_index_prev = int(math.floor(self.read_index))
+            frac = self.read_index - read_index_prev
+            read_index_next = read_index_prev + 1
             if read_index_next == self.buffer_len:
                 read_index_next = 0
 
             diff_block[n] = int(
-                (1-frac) * self.buffer[read_index] + frac * self.buffer[read_index_next]) - x0
+                (1-frac) * self.buffer[read_index_prev] + frac * self.buffer[read_index_next]) - x0
 
             self.buffer[self.write_index] = x0
 
