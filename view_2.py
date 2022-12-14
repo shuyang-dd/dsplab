@@ -5,6 +5,7 @@ from tkinter import filedialog as fd
 from tkinter import messagebox
 from Transcripter import Transcripter
 from tkinter import ttk
+import sv_ttk
 
 
 class View(Tk.Tk):
@@ -12,293 +13,273 @@ class View(Tk.Tk):
         super().__init__()
         self.app = app
         self.Transcripter = Transcripter()
-        self.config(padx=10, pady=6)
-        self.resizable(False, False)
 
         self.running = True
         self.show_wave = False
         self.show_spectrum = False
         self.show_transcript = False
 
-        # Variables
+        sv_ttk.set_theme('dark')
+
+        # initial variable
         self.status = Tk.StringVar(value='Stopped')
         self.file_path = Tk.StringVar(value='')
         self.save_file = Tk.BooleanVar()
         self.save_name = Tk.StringVar(value='recording.wav')
 
         # transcript
-        self.message = Tk.Label(
-            self, text="transcripting: "+self.Transcripter.text)
+        self.message = ttk.Label(
+            self, text="Live caption: "+self.Transcripter.text, wraplength=500)
         self.message.grid(row=6, column=0, sticky='W')
         self.update_text()
 
-        ##### IO Frame #####
-        self.io_frame = Tk.LabelFrame(
-            self, text="Input/Output Setting", padx=5, pady=5)
+        # input and output
+        self.io_frame = ttk.LabelFrame(
+            self, text="Input and Output")
         self.io_frame.grid(row=0, column=0, columnspan=2)
 
-        # IO Frame: 1st Line
+        # input and output
         self.input_mode = Tk.IntVar(value=1)
-        self.mic_btn = Tk.Radiobutton(
+        self.mic_btn = ttk.Radiobutton(
             self.io_frame,
-            text="Microph",
+            text="Microphone",
             variable=self.input_mode,
             command=self.on_input_change,
             value=1,
         )
         self.mic_btn.grid(row=0, column=0, sticky='W', padx=4)
 
-        self.file_btn = Tk.Radiobutton(
+        self.file_btn = ttk.Radiobutton(
             self.io_frame,
-            text="Wave File",
+            text="Wave file",
             variable=self.input_mode,
             command=self.on_input_change,
             value=2,
         )
         self.file_btn.grid(row=0, column=1, sticky='W', padx=5)
 
-        Tk.Label(self.io_frame, text='Status:').grid(
+        ttk.Label(self.io_frame, text='Status:').grid(
             row=0, column=2, sticky='E')
-        self.status_label = Tk.Label(
+        self.status_label = ttk.Label(
             self.io_frame,
             textvariable=self.status,
-            fg='red',
             width=12,
             relief=Tk.SUNKEN,
-            bd=1
         )
         self.status_label.grid(row=0, column=3, padx=10, sticky='E')
 
-        # IO Frame: 2nd Line
-        self.open_btn = Tk.Button(
+        self.open_btn = ttk.Button(
             self.io_frame,
-            text='Open File',
-            padx=1,
-            bd=1,
+            text='Open file',
             command=self.handle_open_file
         )
         self.open_btn.grid(row=1, column=0, pady=5)
         self.open_btn.configure(state='disable')
 
-        io_label = Tk.Frame(self.io_frame, padx=10)
+        io_label = ttk.Frame(self.io_frame)
         io_label.grid(row=1, column=1, columnspan=3)
-        Tk.Label(
+        ttk.Label(
             io_label,
             textvariable=self.file_path,
             width=54,
             relief=Tk.SUNKEN,
-            anchor='w',
-            bd=1
+            anchor='w'
         ).pack()
 
-        # IO Frame: 3rd Line
-        self.save_btn = Tk.Checkbutton(
+        self.save_btn = ttk.Checkbutton(
             self.io_frame,
-            text="Save File",
+            text="Save file",
             variable=self.save_file,
             onvalue=True,
             offvalue=False
         )
         self.save_btn.grid(row=2, column=0)
 
-        self.save_entry = Tk.Entry(
+        self.save_entry = ttk.Entry(
             self.io_frame,
             textvariable=self.save_name,
             width=54,
-            bd=1
+            # bd=1
         )
         self.save_entry.grid(row=2, column=1, columnspan=3)
 
-        ##### Advanced Options #####
-        self.button_frame = Tk.LabelFrame(
-            self, text="Advanced Options", padx=5, pady=10)
+        # advanced options
+        self.button_frame = ttk.LabelFrame(self, text="Graph")
         self.button_frame.grid(row=2, column=0, columnspan=2)
 
         # Button - Wave Graph
-        Tk.Button(
+        ttk.Button(
             self.button_frame,
             text='Wave Graph',
-            padx=10,
-            bd=1,
             command=self.open_wave
         ).grid(row=0, column=0)
 
         # Button - Spectrum Graph
-        Tk.Button(
+        ttk.Button(
             self.button_frame,
             text='Spectrum Graph',
-            padx=10,
-            bd=1,
             command=self.open_spectrum
         ).grid(row=0, column=1)
 
-        ##### General Options #####
-        self.general_btn = Tk.LabelFrame(self, padx=5)
+        # general button
+        self.general_btn = ttk.LabelFrame(self)
         self.general_btn.grid(row=3, column=0, columnspan=2)
 
-        # Button - start
-        Tk.Button(
+        # start
+        ttk.Button(
             self.general_btn,
             text='Start',
-            padx=22,
-            bd=1,
             command=self.start_play
         ).grid(row=0, column=0, pady=8)
 
-        # Button - stop
-        Tk.Button(
+        # stop
+        ttk.Button(
             self.general_btn,
             text='Stop',
-            padx=22,
-            bd=1,
             command=self.stop_play
         ).grid(row=0, column=1, pady=8)
 
-        # Button - Quit
-        Tk.Button(
+        # quit
+        ttk.Button(
             self.general_btn,
             text='Quit',
-            padx=16,
-            bd=1,
             command=self.handle_quit
         ).grid(row=0, column=2)
 
-        ##### Effect Frame #####
-        self.effect_frame = Tk.LabelFrame(
-            self, text="Effect Select & Adjust", padx=5)
+        # filters
+        self.effect_frame = ttk.LabelFrame(self, text="Filter Select & Adjust")
         self.effect_frame.grid(row=1, column=0, columnspan=2)
 
-        # Effect Frame - mode select
-        self.effect_radio = Tk.Frame(self.effect_frame)
+        # mode select
+        self.effect_radio = ttk.Frame(self.effect_frame)
         self.effect_radio.grid(row=0, column=0, sticky='W')
 
         self.effect_mode = Tk.IntVar(value=0)
 
+        # define availble filter
         self.echo_enable = Tk.BooleanVar()
         self.alien_enable = Tk.BooleanVar()
         self.robot_enable = Tk.BooleanVar()
         self.man_enable = Tk.BooleanVar()
         self.woman_enable = Tk.BooleanVar()
 
-        Tk.Radiobutton(
+        ttk.Radiobutton(
             self.effect_radio,
             text="Echo",
             variable=self.effect_mode,
             value=0,
             command=self.on_effect_mode_change
-        ).grid(row=0, column=0, sticky='W', padx=4, pady=2)
+        ).grid(row=0, column=0, sticky='W')
 
-        Tk.Radiobutton(
+        ttk.Radiobutton(
             self.effect_radio,
             text="Alien",
             variable=self.effect_mode,
             value=1,
             command=self.on_effect_mode_change
-        ).grid(row=0, column=1, sticky='W', padx=4)
+        ).grid(row=0, column=1, sticky='W')
 
-        Tk.Radiobutton(
+        ttk.Radiobutton(
             self.effect_radio,
             text="Man",
             variable=self.effect_mode,
             value=2,
             command=self.on_effect_mode_change
-        ).grid(row=0, column=2, sticky='W', padx=4)
+        ).grid(row=0, column=2, sticky='W')
 
-        Tk.Radiobutton(
+        ttk.Radiobutton(
             self.effect_radio,
             text="Woman",
             variable=self.effect_mode,
             value=3,
             command=self.on_effect_mode_change
-        ).grid(row=0, column=3, sticky='W', padx=4)
+        ).grid(row=0, column=3, sticky='W')
 
-        Tk.Radiobutton(
+        ttk.Radiobutton(
             self.effect_radio,
             text="Robot",
             variable=self.effect_mode,
             value=4,
             command=self.on_effect_mode_change
-        ).grid(row=0, column=4, sticky='W', padx=4)
+        ).grid(row=0, column=4, sticky='W')
 
-        ### Echo ###
-        self.echo_frame = Tk.Frame(self.effect_frame, padx=5)
+        # echo filter
+        self.echo_frame = ttk.Frame(self.effect_frame)
         self.echo_frame.grid(row=1, column=0, sticky='W')
 
         self.echo_feedback = Tk.DoubleVar(value=70)
         self.echo_delay = Tk.DoubleVar(value=0.1)
 
-        # First line
-        self.generate_slider(self.echo_frame, self.echo_feedback,
-                             0, 'Feedback (%)', 0.0, 100.0, 1.0)
+        # feedback
+        self.slide(self.echo_frame, self.echo_feedback,
+                   0, 'Feedback (%)', 0.0, 100.0)
 
-        # Second line
-        self.generate_slider(self.echo_frame, self.echo_delay,
-                             1, 'Delay (s)', 0.01, 0.50, 0.01)
+        # delay
+        self.slide(self.echo_frame, self.echo_delay,
+                   1, 'Delay (s)', 0.01, 0.50)
 
-        ### alien ###
-        self.alien_frame = Tk.Frame(self.effect_frame, padx=5)
+        # alien
+        self.alien_frame = ttk.Frame(self.effect_frame)
 
         self.alien_f0 = Tk.DoubleVar(value=5)
         self.alien_w = Tk.DoubleVar(value=0.2)
 
-        # First line
-        self.generate_slider(self.alien_frame, self.alien_f0,
-                             0, 'Frequency', 1.0, 10.0, 1.0)
+        # freq
+        self.slide(self.alien_frame, self.alien_f0,
+                   0, 'Freq (Hz)', 1.0, 10.0)
 
-        # Second line
-        self.generate_slider(self.alien_frame, self.alien_w,
-                             1, 'Oscillation', 0.2, 1.0, 0.1)
+        # oscillation
+        self.slide(self.alien_frame, self.alien_w,
+                   1, 'Oscillation', 0.2, 1.0)
 
-        ### robot am ###
-        self.robot_frame = Tk.Frame(self.effect_frame, padx=5)
+        # robot
+        self.robot_frame = ttk.Frame(self.effect_frame)
 
-        self.robot_feedback = Tk.DoubleVar(value=80)
+        self.robot_gain = Tk.DoubleVar(value=80)
         self.robot_frequency = Tk.DoubleVar(value=200)
 
-        # First line
-        self.generate_slider(self.robot_frame, self.robot_feedback,
-                             0, 'Gain (%)', 0.0, 100.0, 1.0)
+        # gain
+        self.slide(self.robot_frame, self.robot_gain,
+                   0, 'Gain (%)', 0.0, 100.0)
 
-        # Second line
-        self.generate_slider(self.robot_frame, self.robot_frequency,
-                             1, 'Frequency (Hz)', 200, 1000, 50)
+        # freq
+        self.slide(self.robot_frame, self.robot_frequency,
+                   1, 'Freq (Hz)', 200, 1000)
 
-        ### man ###
-        self.man_frame = Tk.Frame(self.effect_frame, padx=5)
+        # man
+        self.man_frame = ttk.Frame(self.effect_frame)
 
         self.man_gain = Tk.DoubleVar(value=80)
         self.man_freq = Tk.DoubleVar(value=100)
 
-        # First line
-        self.generate_slider(self.man_frame, self.man_gain,
-                             0, 'Gain (%)', 1.0, 100.0, 1.0)
+        # gain
+        self.slide(self.man_frame, self.man_gain,
+                   0, 'Gain (%)', 1.0, 100.0)
 
-        # Second line
-        self.generate_slider(self.man_frame, self.man_freq,
-                             1, 'Shift Freq (Hz)', -800, 100, 10.0)
+        # freq
+        self.slide(self.man_frame, self.man_freq,
+                   1, 'Freq (Hz)', -800, 100)
 
-        ### Woman ###
-        self.woman_frame = Tk.Frame(self.effect_frame, padx=5)
+        # woman
+        self.woman_frame = ttk.Frame(self.effect_frame)
 
         self.woman_gain = Tk.DoubleVar(value=80)
         self.woman_freq = Tk.DoubleVar(value=0)
 
-        # First line
-        self.generate_slider(self.woman_frame, self.woman_gain,
-                             0, 'Gain (%)', 1.0, 100.0, 1.0)
+        # gain
+        self.slide(self.woman_frame, self.woman_gain,
+                   0, 'Gain (%)', 1.0, 100.0)
 
-        # Second line
-        self.generate_slider(self.woman_frame, self.woman_freq,
-                             1, 'Shift Freq (Hz)', 0, 1000, 10.0)
+        # freq
+        self.slide(self.woman_frame, self.woman_freq,
+                   1, 'Freq (Hz)', 0, 1000)
 
         self.frames = [self.echo_frame, self.alien_frame,
                        self.man_frame, self.woman_frame, self.robot_frame]
         plt.ion()
 
     def update_text(self):
-        #self.view_text = self.Transcripter.text
-        # print("view"+self.Transcripter.text)
-        self.message.config(text="transcripting: " +
+        self.message.config(text="Live caption: " +
                             self.Transcripter.text)
 
         self.after(100, self.update_text)
@@ -345,17 +326,14 @@ class View(Tk.Tk):
         if filepath:
             self.file_path.set(filepath)
             self.status.set('File Opened')
-            self.status_label.config(fg="blue")
 
     def start_play(self):
         mode = self.input_mode.get()
         if mode == 1:
             self.status.set('Recording')
-            self.status_label.config(fg="green")
         elif mode == 2:
             if self.file_path.get():
                 self.status.set('Playing')
-                self.status_label.config(fg="green")
             else:
                 messagebox.showerror('Error', 'Please open a wave file')
                 return
@@ -369,10 +347,8 @@ class View(Tk.Tk):
     def stop_play(self):
         if self.save_file.get():
             self.status.set('File Saved')
-            self.status_label.config(fg="orange")
         else:
             self.status.set('Stopped')
-            self.status_label.config(fg="red")
         self.mic_btn.configure(state='normal')
         self.file_btn.configure(state='normal')
         self.open_btn.configure(state='normal')
@@ -393,7 +369,7 @@ class View(Tk.Tk):
         t = [n*1000/float(self.app.rate) for n in range(self.app.block_len)]
 
         plt.xlim(0, 1000.0 * self.app.block_len /
-                 self.app.rate)         # set x-axis limits
+                 self.app.rate)
         plt.xlabel('Time (msec)')
 
         plt.ylim(-8000, 8000)
@@ -427,49 +403,31 @@ class View(Tk.Tk):
 
         plt.legend()
 
-    def generate_slider(self, frame, slider_var, row, title, min_num, max_num, resolution):
-        Tk.Label(
+    def slide(self, frame, slider_var, row, title, min_num, max_num):
+        ttk.Label(
             frame,
             text=title,
-            padx=3,
-            pady=2,
             width=12,
-            anchor='e',
-            bd=1
+            anchor='e'
         ).grid(row=row, column=0, sticky='E', pady=5)
 
-        Tk.Label(
-            frame,
-            textvariable=slider_var,
-            width=5,
-            relief=Tk.SUNKEN,
-            bd=1
-        ).grid(row=row, column=1, padx=8)
-
-        Tk.Label(
+        ttk.Label(
             frame,
             text=min_num,
-            width=3,
-            padx=3,
-            bd=1
+            width=3
         ).grid(row=row, column=2)
 
-        Tk.Scale(
+        ttk.Scale(
             frame,
             orient='horizontal',
-            showvalue=False,
             variable=slider_var,
-            sliderlength=20,
             from_=min_num,
             to=max_num,
-            resolution=resolution,
             length=120
-        ).grid(row=row, column=3, padx=5)
+        ).grid(row=row, column=3)
 
-        Tk.Label(
+        ttk.Label(
             frame,
             text=max_num,
             width=4,
-            padx=3,
-            bd=1
         ).grid(row=row, column=4)

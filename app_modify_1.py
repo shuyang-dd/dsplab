@@ -1,7 +1,3 @@
-# Tk_demo_04_slider.py
-# TKinter demo
-# Play a sinusoid using Pyaudio. Use two sliders to adjust the frequency and gain.
-
 from filter.echo import *
 from filter.alien import *
 from filter.man import *
@@ -18,9 +14,9 @@ import threading
 from Transcripter import Transcripter
 import asyncio
 
-
 CHANNELS = 1
-RATE = 16000     # rate (samples/second)
+RATE = 16000
+
 BLOCKLEN = 1024
 WIDTH = 2
 
@@ -30,10 +26,12 @@ class App:
         self.view = View(self)
         self.ts = Transcripter()
 
+        # mode: 0:stopped 1:input from microphone 2: input from wave file
         self.mode = 0
         self.mode_changed = False
 
         self.block_len = BLOCKLEN
+
         self.audio = pyaudio.PyAudio()
 
         self.set_rate(RATE)
@@ -71,6 +69,7 @@ class App:
                 input=False,
                 output=True)
 
+        # save file to filename.
         save_file = self.view.save_file.get()
         save_name = self.view.save_name.get()
         if save_file and save_name:
@@ -79,12 +78,11 @@ class App:
             self.output_wf.setsampwidth(WIDTH)
             self.output_wf.setnchannels(CHANNELS)
 
-    # mode: 0 -- Stopped, 1 -- Microph, 2 -- Wave File
     def start(self):
 
+        # async transcripting start.
         self.show_ts()
-        s_count = 0
-        w_count = 0
+
         while self.view.is_running():
             if self.mode_changed:
                 self.mode_changed = False
@@ -101,39 +99,37 @@ class App:
             if len(input_bytes) < self.block_len * WIDTH:
                 input_bytes = b"\x00" * self.block_len * WIDTH
 
-            input_tuple = struct.unpack(
-                'h' * self.block_len, input_bytes)  # Convert
+            input_tuple = struct.unpack('h' * self.block_len, input_bytes)
 
             output_block = np.array(input_tuple)
 
             if self.view.echo_enable.get():
-                output_block += self.echo_filter.apply(self.view, input_tuple)
+                output_block = self.echo_filter.apply(self.view, input_tuple)
 
             if self.view.robot_enable.get():
-                output_block += self.robot_filter.apply(self.view, input_tuple)
+                output_block = self.robot_filter.apply(self.view, input_tuple)
 
             if self.view.alien_enable.get():
-                output_block += self.alien_filter.apply(
+                output_block = self.alien_filter.apply(
                     self.view, input_tuple)
 
             if self.view.man_enable.get():
-                output_block += self.man_filter.apply(
+                output_block = self.man_filter.apply(
                     self.view, input_tuple)
 
             if self.view.woman_enable.get():
-                output_block += self.woman_filter.apply(
+                output_block = self.woman_filter.apply(
                     self.view, input_tuple)
 
-            # Spectrum Plot
+            # spectrum graph
             if self.view.show_spectrum:
                 X = np.fft.fft(input_tuple, norm="ortho") / self.rate
                 Y = np.fft.fft(output_block, norm="ortho") / self.rate
 
-                # Update y-data of plot
                 self.view.spectrum_x.set_ydata(np.abs(X))
                 self.view.spectrum_y.set_ydata(np.abs(Y))
 
-            # Wave Plot
+            # wave graph
             if self.view.show_wave:
                 self.view.wave_x.set_ydata(input_tuple)
                 self.view.wave_y.set_ydata(output_block)

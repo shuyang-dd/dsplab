@@ -9,7 +9,7 @@ class RobotFilter(Function):
 
     def apply(self, view, input_tuple):
 
-        self.gain = view.robot_feedback.get() / 100
+        self.gain = view.robot_gain.get() / 100
         self.f0 = view.robot_frequency.get()
 
         diff_block = [0] * self.block_len
